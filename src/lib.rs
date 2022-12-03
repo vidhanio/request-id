@@ -11,28 +11,14 @@ use std::sync::{
     Arc,
 };
 
-macro_rules! make_request_id {
-    {
-        $([$feature:literal])?
-        $Type:ident;
-        |$($this:ident)?| $create:expr
-     } => {
-        $(#[cfg(feature = $feature)])*
-        impl ::tower_http::request_id::MakeRequestId for $Type {
-            fn make_request_id<B>(
-                &mut self,
-                #[allow(unused_variables)] request: &::hyper::Request<B>,
-            ) -> ::std::option::Option<::tower_http::request_id::RequestId> {
-                $(let $this = self;)*
+use hyper::Request;
+use tower_http::request_id::{MakeRequestId, RequestId};
 
-                ::std::option::Option::Some(::tower_http::request_id::RequestId::new(
-                    ::std::str::FromStr::from_str(&::std::string::ToString::to_string(&$create))
-                        .expect("request id should only contain ascii characters"),
-                ))
-            }
-        }
-    };
-}
+#[cfg(feature = "uuid")]
+use uuid::Uuid;
+
+#[cfg(feature = "ulid")]
+use ulid::Ulid;
 
 /// A [`MakeRequestId`] that generates a [`RequestId`] from a [`Uuid`].
 ///
@@ -43,10 +29,19 @@ macro_rules! make_request_id {
 #[cfg(feature = "uuid")]
 pub struct MakeRequestUuid;
 
-make_request_id! {
-    ["uuid"]
-    MakeRequestUuid;
-    | | uuid::Uuid::new_v4()
+#[cfg(feature = "uuid")]
+impl MakeRequestId for MakeRequestUuid {
+    fn make_request_id<B>(
+        &mut self,
+        #[allow(unused_variables)] request: &Request<B>,
+    ) -> Option<RequestId> {
+        Some(RequestId::new(
+            Uuid::new_v4()
+                .to_string()
+                .parse()
+                .expect("uuid should only contain ascii characters"),
+        ))
+    }
 }
 
 /// A [`MakeRequestId`] that generates a [`RequestId`] from a [`Ulid`].
@@ -58,10 +53,19 @@ make_request_id! {
 #[cfg(feature = "ulid")]
 pub struct MakeRequestUlid;
 
-make_request_id! {
-    ["ulid"]
-    MakeRequestUlid;
-    | | ulid::Ulid::new()
+#[cfg(feature = "ulid")]
+impl MakeRequestId for MakeRequestUlid {
+    fn make_request_id<B>(
+        &mut self,
+        #[allow(unused_variables)] request: &Request<B>,
+    ) -> Option<RequestId> {
+        Some(RequestId::new(
+            Ulid::new()
+                .to_string()
+                .parse()
+                .expect("ulid should only contain ascii characters"),
+        ))
+    }
 }
 
 /// A [`MakeRequestId`] that uses an atomic counter to generate [`RequestId`]s.
@@ -81,10 +85,20 @@ impl MakeRequestIdCounter {
     }
 }
 
-make_request_id!(
-    MakeRequestIdCounter;
-    |this| this.counter.fetch_add(1, Ordering::SeqCst)
-);
+impl MakeRequestId for MakeRequestIdCounter {
+    fn make_request_id<B>(
+        &mut self,
+        #[allow(unused_variables)] request: &Request<B>,
+    ) -> Option<RequestId> {
+        Some(RequestId::new(
+            self.counter
+                .fetch_add(1, Ordering::Relaxed)
+                .to_string()
+                .parse()
+                .expect("usize should only contain ascii characters"),
+        ))
+    }
+}
 
 #[cfg(test)]
 mod tests {
