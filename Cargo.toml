@@ -1,0 +1,17 @@
+[package]
+name = "request-id"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+uuid = { version = "1", optional = true }
+ulid = { version = "1", optional = true }
+
+tower-http = { version = "0.3.5", features = ["request-id"] }
+hyper = "0.14"
+
+
+[features]
+uuid = ["uuid/v4"]
+ulid = ["dep:ulid"]
