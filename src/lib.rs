@@ -1,3 +1,11 @@
+//! A few common `MakeRequestId` implementations for use with `tower-http`
+
+#![warn(clippy::nursery)]
+#![warn(clippy::pedantic)]
+#![warn(clippy::cargo)]
+#![warn(missing_docs)]
+#![allow(clippy::needless_doctest_main)]
+
 use std::sync::{
     atomic::{AtomicUsize, Ordering},
     Arc,
@@ -26,6 +34,11 @@ macro_rules! make_request_id {
     };
 }
 
+/// A [`MakeRequestId`] that generates a [`RequestId`] from a [`Uuid`].
+///
+/// [`MakeRequestId`]: ::tower_http::request_id::MakeRequestId
+/// [`RequestId`]: ::tower_http::request_id::RequestId
+/// [`Uuid`]: ::uuid::Uuid
 #[derive(Clone, Copy, Debug, Default)]
 #[cfg(feature = "uuid")]
 pub struct MakeRequestUuid;
@@ -36,6 +49,11 @@ make_request_id! {
     | | uuid::Uuid::new_v4()
 }
 
+/// A [`MakeRequestId`] that generates a [`RequestId`] from a [`Ulid`].
+///
+/// [`MakeRequestId`]: ::tower_http::request_id::MakeRequestId
+/// [`RequestId`]: ::tower_http::request_id::RequestId
+/// [`Ulid`]: ::ulid::Ulid
 #[derive(Clone, Copy, Debug, Default)]
 #[cfg(feature = "ulid")]
 pub struct MakeRequestUlid;
@@ -46,14 +64,20 @@ make_request_id! {
     | | ulid::Ulid::new()
 }
 
+/// A [`MakeRequestId`] that uses an atomic counter to generate [`RequestId`]s.
+///
+/// [`MakeRequestId`]: ::tower_http::request_id::MakeRequestId
+/// [`RequestId`]: ::tower_http::request_id::RequestId
 #[derive(Clone, Debug, Default)]
 pub struct MakeRequestIdCounter {
     counter: Arc<AtomicUsize>,
 }
 
 impl MakeRequestIdCounter {
+    /// Create a new `MakeRequestIdCounter`.
+    #[must_use]
     pub fn new() -> Self {
-        Default::default()
+        Self::default()
     }
 }
 
