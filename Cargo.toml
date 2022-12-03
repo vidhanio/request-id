@@ -5,15 +5,14 @@ edition = "2021"
 authors = ["Vidhan Bhatt <me@vidhan.io>"]
 description = "A few common `MakeRequestId` implementations for use with `tower-http`"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/vidhanio/fncli"
+repository = "https://github.com/vidhanio/request-id"
 readme = "README.md"
-keywords = ["command-line", "cli", "macro"]
-categories = ["command-line-interface"]
+keywords = ["tower", "tower-http", "request-id"]
+categories = ["web-programming", "web-programming::http-server"]
 
 [dependencies]
 uuid = { version = "1", optional = true }
 ulid = { version = "1", optional = true }
-
 tower-http = { version = "0.3.5", features = ["request-id"] }
 hyper = "0.14"
 
