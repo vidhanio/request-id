@@ -5,10 +5,9 @@ on:
     - cron: "0 0 * * *"
 
   push:
-    branches:
-      - development
-      - staging
-      - production
+    paths:
+      - Cargo.toml
+      - Cargo.lock
 
   pull_request:
 
