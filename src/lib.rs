@@ -64,7 +64,7 @@ make_request_id!(
 
 #[cfg(test)]
 mod tests {
-    use hyper::{http::HeaderValue, Request};
+    use hyper::Request;
     use tower_http::request_id::MakeRequestId;
 
     use super::*;
