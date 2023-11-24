@@ -1,6 +1,6 @@
 [package]
 name = "request-id"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 authors = ["Vidhan Bhatt <me@vidhan.io>"]
 description = "A few common request id implementations for use with tower-http"
